@@ -15,7 +15,6 @@ import {
 } from "@mui/icons-material";
 import type { ChangeEvent } from "react";
 import BackgroundImage from "../../assets/bg.jpeg";
-import BackgroundImage2 from "../../assets/test.png";
 
 const Wrapper = styled("div")({
   border: "2px solid #0984e3",
@@ -80,7 +79,6 @@ const LoginPage = () => {
   };
 
   const onSubmit = (e: React.SyntheticEvent): void => {
-    console.log(e);
     const users = localStorage.getItem("users")
       ? (JSON.parse(localStorage.getItem("users") as string) as any[])
       : [];
