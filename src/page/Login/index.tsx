@@ -13,8 +13,9 @@ import {
   VisibilityOff as VisibilityOffIcon,
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
-import type { ChangeEvent } from "react";
-import BackgroundImage from "../../assets/bg.jpeg";
+import BackgroundImage from "@/assets/bg.jpeg";
+import { FormProvider, useForm, useController } from "react-hook-form";
+import RegisterDialog from "@/components/login/RegisterDialog";
 
 const Wrapper = styled("div")({
   border: "2px solid #0984e3",
@@ -56,43 +57,40 @@ const ColumnTitle = styled(Typography)({
 });
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [emailValidation, setEmailValidation] = useState<boolean>(true);
-  const [password, setPassword] = useState("");
+  const methods = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
-  const changeEmail = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-  const validateEmail = () => {
-    const regex = new RegExp("[a-z0-9]+@[a-z]+.[a-z]{2,3}");
-    setEmailValidation(regex.test(email));
-  };
+  const { field: emailField } = useController({
+    name: "email",
+    control: methods.control,
+    rules: {
+      required: "이메일을 입력해 주세요.",
+      pattern: {
+        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+        message: "유효한 이메일 주소를 입력해주세요.",
+      },
+    },
+  });
 
-  const changePassword = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
+  const { field: passwordField } = useController({
+    name: "password",
+    control: methods.control,
+    rules: { required: "비밀번호를 입력해 주세요." },
+  });
 
   const checkKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") e.preventDefault();
   };
 
-  const onSubmit = (e: React.SyntheticEvent): void => {
-    const users = localStorage.getItem("users")
-      ? (JSON.parse(localStorage.getItem("users") as string) as any[])
-      : [];
-
-    const loginUser = users.find(
-      (user) => user.email === email && user.password === password
-    );
-    if (loginUser) {
-      localStorage.setItem("loginUser", "");
-      localStorage.setItem("loginUser", JSON.stringify(loginUser));
-    } else {
-      alert("이메일에 맞는 유저가 존재하지 않습니다.");
-      e.preventDefault();
-    }
+  const onSubmit = (formData: any): void => {
+    console.log(formData);
   };
 
   return (
@@ -114,87 +112,103 @@ const LoginPage = () => {
 
       <Wrapper>
         <LoginLetter variant="h4">로그인</LoginLetter>
-        <form onSubmit={(e) => onSubmit(e)} onKeyDown={(e) => checkKeyDown(e)}>
-          <Grid
-            container
-            direction="column"
-            alignContent="flex-start"
-            sx={{ mb: 3 }}
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods.handleSubmit(onSubmit)}
+            onKeyDown={(e) => checkKeyDown(e)}
           >
-            <Grid item>
-              <ColumnTitle sx={{ textAlign: "start", mb: 1 }}>
-                이메일
-              </ColumnTitle>
-            </Grid>
-            <Grid item sx={{ mb: 3 }}>
-              <Box
-                sx={{
-                  width: 432,
-                  maxWidth: "100%",
-                }}
-              >
+            <Grid
+              container
+              direction="column"
+              alignContent="flex-start"
+              sx={{ mb: 3 }}
+            >
+              <Grid item>
+                <ColumnTitle sx={{ textAlign: "start", mb: 1 }}>
+                  이메일
+                </ColumnTitle>
+              </Grid>
+              <Grid item sx={{ mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 432,
+                    maxWidth: "100%",
+                  }}
+                >
+                  <TextField
+                    // error
+                    {...emailField}
+                    fullWidth
+                    placeholder="welcome@our-film.com"
+                    error={!!methods.formState?.errors?.email}
+                    helperText={methods.formState?.errors?.email?.message ?? ""}
+                  />
+                </Box>
+              </Grid>
+              <Grid item>
+                <ColumnTitle sx={{ textAlign: "start", mb: 1 }}>
+                  비밀번호
+                </ColumnTitle>
+              </Grid>
+              <Grid item>
                 <TextField
-                  // error
+                  {...passwordField}
                   fullWidth
-                  value={email}
-                  placeholder="welcome@our-film.com"
-                  onChange={(e) => changeEmail(e)}
-                  onBlur={() => validateEmail()}
-                  error={!emailValidation}
+                  type={passwordVisible ? "text" : "password"}
+                  error={!!methods.formState?.errors?.password}
+                  helperText={methods.formState?.errors?.password?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setPasswordVisible((prev) => !prev)}
+                          edge="end"
+                        >
+                          {passwordVisible ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-              </Box>
+              </Grid>
             </Grid>
-            <Grid item>
-              <ColumnTitle sx={{ textAlign: "start", mb: 1 }}>
-                비밀번호
-              </ColumnTitle>
+            <Grid container justifyContent="space-around">
+              <Grid item>
+                <Button
+                  sx={{ width: "196px" }}
+                  variant="outlined"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setRegisterVisible(true);
+                  }}
+                >
+                  회원가입
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  type="submit"
+                  sx={{ width: "196px" }}
+                  variant="contained"
+                >
+                  로그인
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <TextField
-                fullWidth
-                type={passwordVisible ? "text" : "password"}
-                value={password}
-                onChange={(e) => changePassword(e)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setPasswordVisible((prev) => !prev)}
-                        edge="end"
-                      >
-                        {passwordVisible ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Grid container justifyContent="space-around">
-            <Grid item>
-              <Button
-                type="submit"
-                sx={{ width: "196px" }}
-                variant="outlined"
-                onClick={() => {
-                  setRegisterVisible(true);
-                }}
-              >
-                회원가입
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button type="submit" sx={{ width: "196px" }} variant="contained">
-                로그인
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
+          </form>
+        </FormProvider>
       </Wrapper>
+      {registerVisible && (
+        <RegisterDialog
+          visible={registerVisible}
+          // back={() => console.log("back")}
+          // onClose={setRegisterVisible(false)}
+        />
+      )}
     </Box>
   );
 };
