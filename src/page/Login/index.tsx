@@ -14,6 +14,7 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import BackgroundImage from "@/assets/bg.jpeg";
+import KakaoLoginImage from "@/assets/kakao_login.png";
 import { FormProvider, useForm, useController } from "react-hook-form";
 import RegisterDialog from "@/components/login/RegisterDialog";
 
@@ -56,6 +57,12 @@ const ColumnTitle = styled(Typography)({
   flexGrow: "0",
 });
 
+const OtherLoginButton = styled("img")({
+  "&:hover": {
+    cursor: "pointer",
+  },
+});
+
 const LoginPage = () => {
   const methods = useForm({
     defaultValues: {
@@ -91,6 +98,28 @@ const LoginPage = () => {
 
   const onSubmit = (formData: any): void => {
     console.log(formData);
+  };
+
+  const kakaoLogin = () => {
+    console.log("kakao Login");
+
+    const kakao = window?.Kakao;
+    kakao.Auth.login({
+      success: function (response) {
+        kakao.API.request({
+          url: "/v2/user/me",
+          success: function (response) {
+            console.log(response);
+          },
+          fail: function (error) {
+            console.log(error);
+          },
+        });
+      },
+      fail: function (error) {
+        console.log(error);
+      },
+    });
   };
 
   return (
@@ -197,6 +226,15 @@ const LoginPage = () => {
                 >
                   로그인
                 </Button>
+              </Grid>
+            </Grid>
+            <Grid container justifyContent="space-around" sx={{ mt: "10px" }}>
+              <Grid item>
+                <OtherLoginButton
+                  src={KakaoLoginImage}
+                  style={{ width: "120px", height: "30px" }}
+                  onClick={kakaoLogin}
+                ></OtherLoginButton>
               </Grid>
             </Grid>
           </form>
