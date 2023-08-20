@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import {
   Box,
@@ -14,6 +14,7 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import BackgroundImage from "@/assets/bg.jpeg";
+import NaverLoginImage from "@/assets/naver_login.png";
 import KakaoLoginImage from "@/assets/kakao_login.png";
 import { FormProvider, useForm, useController } from "react-hook-form";
 import RegisterDialog from "@/components/login/RegisterDialog";
@@ -121,6 +122,30 @@ const LoginPage = () => {
       },
     });
   };
+
+  useEffect(() => {
+    const { naver } = window;
+
+    const naverLogin = new naver.LoginWithNaverId({
+      clientId: "fhipMgTgOHlVEIUpYRUO",
+      callbackUrl: "http://127.0.0.1:3000",
+      isPopup: true,
+      loginButton: { color: "green", type: 2, height: 40 },
+    });
+
+    naverLogin.init();
+    naverLogin.getLoginStatus(async function (status: any) {
+      console.log("getLoginStatus");
+      console.log(status);
+      if (status) {
+        console.log(naverLogin.user);
+        const userId = naverLogin.user.getEmail();
+        const userName = naverLogin.user.getName();
+        console.log(userId);
+        console.log(userName);
+      }
+    });
+  }, []);
 
   return (
     <Box>
@@ -230,9 +255,12 @@ const LoginPage = () => {
             </Grid>
             <Grid container justifyContent="space-around" sx={{ mt: "10px" }}>
               <Grid item>
+                <div id="naverIdLogin" />
+              </Grid>
+              <Grid item>
                 <OtherLoginButton
                   src={KakaoLoginImage}
-                  style={{ width: "120px", height: "30px" }}
+                  style={{ width: "105", height: "40px" }}
                   onClick={kakaoLogin}
                 ></OtherLoginButton>
               </Grid>
@@ -240,6 +268,7 @@ const LoginPage = () => {
           </form>
         </FormProvider>
       </Wrapper>
+
       {registerVisible && (
         <RegisterDialog
           visible={registerVisible}
