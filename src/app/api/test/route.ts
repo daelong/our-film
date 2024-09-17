@@ -11,7 +11,6 @@ export async function GET() {
       id: doc.id,
       ...doc.data(),
     }));
-    console.log("users", users);
 
     return new Response(JSON.stringify(users), {
       status: 200,

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextAuthProvider } from "@/app/context/AuthContext";
+
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
@@ -21,7 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          <NextAuthProvider>
+            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          </NextAuthProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
