@@ -1,24 +1,28 @@
 "use client";
 import { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
+import axiosInstance from "@/app/api";
 
 const TestPage = () => {
+  const addUsers = async () => {
+    await axiosInstance.post("/api/test", { name: "user add test" });
+  };
+
+  const getUsers = async () => {
+    const res = await axiosInstance.get("/api/test");
+    console.log(res.data);
+  };
+
   useEffect(() => {
-    async function fetchUsers() {
-      const res = await fetch("/api/test");
-      const data = await res.json();
-      console.log(data);
-    }
-    try {
-      fetchUsers();
-    } catch (err) {
-      console.log("err", err);
-    }
+    getUsers();
   }, []);
 
   return (
     <Box>
       <Typography>Test page</Typography>
+      <Button variant="contained" onClick={addUsers}>
+        Add user
+      </Button>
     </Box>
   );
 };
