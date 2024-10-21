@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import axiosInstance from "@/app/api";
-
+import axios from "axios";
 const TestPage = () => {
   const addUsers = async () => {
     await axiosInstance.post("/api/test", { name: "user add test" });
@@ -10,7 +10,6 @@ const TestPage = () => {
 
   const getUsers = async () => {
     const res = await axiosInstance.get("/api/test");
-    console.log(res.data);
   };
 
   useEffect(() => {
